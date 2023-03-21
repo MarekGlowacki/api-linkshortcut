@@ -24,6 +24,6 @@ public class LinkController {
                 .path("/{id}")
                 .buildAndExpand(savedLink.getId())
                 .toUri();
-        return ResponseEntity.created(savedLinkUri).build();
+        return ResponseEntity.created(savedLinkUri).body(savedLink);
     }
 }

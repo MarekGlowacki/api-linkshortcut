@@ -2,6 +2,7 @@ package online.javafun.shortlink;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -34,5 +35,14 @@ public class LinkService {
             randomId.append(randomNumber);
         }
         return randomId.toString();
+    }
+
+    Optional<Link> findById(String id) {
+        return linkRepository.findById(id);
+    }
+
+    void addVisit(Link link) {
+        link.setVisits(link.getVisits() + 1);
+        linkRepository.save(link);
     }
 }

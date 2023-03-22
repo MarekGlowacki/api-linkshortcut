@@ -1,6 +1,8 @@
 package online.javafun.shortlink;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Optional;
 import java.util.Random;
@@ -16,11 +18,13 @@ public class LinkService {
     }
 
     Link save(LinkDto linkDto) {
-        String generatedId = generateId();
-        String redirectLinkBeginning = "http://localhost:8080/redir/";
+        String generatedId = "";
+        do {
+            generatedId = generateId();
+        } while (linkRepository.existsById(generatedId));
         Link link = linkMapper.map(linkDto);
         link.setId(generatedId);
-        link.setRedirectUrl(redirectLinkBeginning + generatedId);
+        link.setRedirectUrl(buildRedirectUrlFromId(generatedId));
         link.setVisits(0L);
         return linkRepository.save(link);
     }
@@ -41,8 +45,18 @@ public class LinkService {
         return linkRepository.findById(id);
     }
 
-    void addVisit(Link link) {
-        link.setVisits(link.getVisits() + 1);
-        linkRepository.save(link);
+    @Transactional
+    public Optional<Link> incrementVisitsById(String id) {
+        Optional<Link> link = linkRepository.findById(id);
+        link.ifPresent(l -> l.setVisits(l.getVisits() + 1));
+        return link;
+    }
+
+    private static String buildRedirectUrlFromId(String id) {
+        return ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/redir/{id}")
+                .buildAndExpand(id)
+                .toUriString();
     }
 }

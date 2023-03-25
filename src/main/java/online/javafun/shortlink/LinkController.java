@@ -45,25 +45,18 @@ public class LinkController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/api/links/{id}")
-    ResponseEntity<?> linkUpdate(@PathVariable String id, @RequestBody LinkCreateDto linkCreateDto) {
-        Optional<Link> foundLinkOptional = linkService.findById(id);
-        if (foundLinkOptional.isPresent()) {
-            String dbPassword = foundLinkOptional.get().getPassword();
-            String requestPassword = linkCreateDto.getPassword();
-            boolean isDbPasswordEmpty = StringUtils.isEmpty(dbPassword);
-            boolean isRequestPasswordEmpty = StringUtils.isEmpty(requestPassword);
-
-            if (isDbPasswordEmpty || isRequestPasswordEmpty) {
-                return new ResponseEntity<>("reason: wrong password", HttpStatus.FORBIDDEN);
-            } else if(requestPassword.equals(dbPassword)) {
-                linkService.updateName(id, linkCreateDto);
-                return ResponseEntity.noContent().build();
-            } else {
-                return new ResponseEntity<>("reason: wrong password", HttpStatus.FORBIDDEN);
-            }
-        } else {
+    @PatchMapping("/{id}")
+    ResponseEntity<?> update(@PathVariable String id,
+                             @RequestBody LinkCreateDto link) {
+        try {
+            linkService.updateLink(id, link);
+            return ResponseEntity.noContent().build();
+        } catch (LinkNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .header("reason", e.getMessage())
+                    .build();
         }
     }
 }

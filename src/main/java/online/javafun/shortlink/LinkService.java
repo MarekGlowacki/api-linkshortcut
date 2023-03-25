@@ -30,10 +30,16 @@ public class LinkService {
     }
 
     @Transactional
-    Optional<Link> updateName(String id, LinkCreateDto linkCreateDto) {
-        Optional<Link> link = linkRepository.findById(id);
-        link.ifPresent(l -> l.setName(linkCreateDto.getName()));
-        return link;
+    public void updateLink(String linkId, LinkCreateDto link) {
+        Optional<Link> linkToUpdate = linkRepository.findById(linkId);
+        linkToUpdate.orElseThrow(LinkNotFoundException::new);
+        linkToUpdate.filter(entity -> checkPassword(entity, link.getPassword()))
+                .orElseThrow(InvalidPasswordException::new)
+                .setName(link.getName());
+    }
+
+    private boolean checkPassword(Link entity, String password) {
+        return entity.getPassword() != null && entity.getPassword().equals(password);
     }
 
     private String generateId() {

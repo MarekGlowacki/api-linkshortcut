@@ -45,7 +45,7 @@ public class LinkController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/api/links/{id}")
     ResponseEntity<?> update(@PathVariable String id,
                              @RequestBody LinkCreateDto link) {
         try {

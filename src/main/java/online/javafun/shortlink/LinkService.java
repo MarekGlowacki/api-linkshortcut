@@ -17,16 +17,23 @@ public class LinkService {
         this.linkMapper = linkMapper;
     }
 
-    Link save(LinkDto linkDto) {
+    LinkResponseDto save(LinkCreateDto linkCreateDto) {
         String generatedId = "";
         do {
             generatedId = generateId();
         } while (linkRepository.existsById(generatedId));
-        Link link = linkMapper.map(linkDto);
+        Link link = linkMapper.map(linkCreateDto);
         link.setId(generatedId);
         link.setRedirectUrl(buildRedirectUrlFromId(generatedId));
         link.setVisits(0L);
-        return linkRepository.save(link);
+        return linkMapper.map(linkRepository.save(link));
+    }
+
+    @Transactional
+    Optional<Link> updateName(String id, LinkCreateDto linkCreateDto) {
+        Optional<Link> link = linkRepository.findById(id);
+        link.ifPresent(l -> l.setName(linkCreateDto.getName()));
+        return link;
     }
 
     private String generateId() {

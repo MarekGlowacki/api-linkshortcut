@@ -1,18 +1,22 @@
 package online.javafun.shortlink;
 
-import jakarta.persistence.*;
-@Entity
-class Link {
-    @Id
+public class LinkResponseDto {
     private String id;
     private String name;
     private String targetUrl;
     private String redirectUrl;
     private Long visits;
 
-    private String password;
+    public LinkResponseDto(String id, String name, String targetUrl, String redirectUrl, Long visits) {
+        this.id = id;
+        this.name = name;
+        this.targetUrl = targetUrl;
+        this.redirectUrl = redirectUrl;
+        this.visits = visits;
+    }
 
-    public Link() {}
+    public LinkResponseDto() {
+    }
 
     public String getId() {
         return id;
@@ -52,13 +56,5 @@ class Link {
 
     public void setVisits(Long visits) {
         this.visits = visits;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

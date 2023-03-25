@@ -1,11 +1,10 @@
 package online.javafun.shortlink;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.net.URI;
 import java.util.Optional;
 
@@ -19,8 +18,8 @@ public class LinkController {
     }
 
     @PostMapping("/api/links")
-    ResponseEntity<Link> saveLink(@RequestBody LinkDto linkDto) {
-        Link savedLink = linkService.save(linkDto);
+    ResponseEntity<LinkResponseDto> saveLink(@RequestBody LinkCreateDto linkCreateDto) {
+        LinkResponseDto savedLink = linkService.save(linkCreateDto);
         URI savedLinkUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedLink.getId())
@@ -44,5 +43,27 @@ public class LinkController {
         return linkService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/api/links/{id}")
+    ResponseEntity<?> linkUpdate(@PathVariable String id, @RequestBody LinkCreateDto linkCreateDto) {
+        Optional<Link> foundLinkOptional = linkService.findById(id);
+        if (foundLinkOptional.isPresent()) {
+            String dbPassword = foundLinkOptional.get().getPassword();
+            String requestPassword = linkCreateDto.getPassword();
+            boolean isDbPasswordEmpty = StringUtils.isEmpty(dbPassword);
+            boolean isRequestPasswordEmpty = StringUtils.isEmpty(requestPassword);
+
+            if (isDbPasswordEmpty || isRequestPasswordEmpty) {
+                return new ResponseEntity<>("reason: wrong password", HttpStatus.FORBIDDEN);
+            } else if(requestPassword.equals(dbPassword)) {
+                linkService.updateName(id, linkCreateDto);
+                return ResponseEntity.noContent().build();
+            } else {
+                return new ResponseEntity<>("reason: wrong password", HttpStatus.FORBIDDEN);
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

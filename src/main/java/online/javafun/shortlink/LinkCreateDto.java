@@ -1,12 +1,14 @@
 package online.javafun.shortlink;
 
-public class LinkDto {
+public class LinkCreateDto {
     private String name;
     private String targetUrl;
+    private String password;
 
-    public LinkDto(String name, String targetUrl) {
+    public LinkCreateDto(String name, String targetUrl, String password) {
         this.name = name;
         this.targetUrl = targetUrl;
+        this.password = password;
     }
 
     public String getName() {
@@ -23,5 +25,13 @@ public class LinkDto {
 
     public void setTargetUrl(String targetUrl) {
         this.targetUrl = targetUrl;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

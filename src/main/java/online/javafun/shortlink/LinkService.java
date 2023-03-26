@@ -42,6 +42,16 @@ public class LinkService {
         return entity.getPassword() != null && entity.getPassword().equals(password);
     }
 
+    @Transactional
+    public void deleteLink(String id, String password) {
+        Optional<Link> linkById = linkRepository.findById(id);
+        if (linkById.isPresent()) {
+            Link linkToDelete = linkById.filter(link -> checkPassword(link, password))
+                    .orElseThrow(InvalidPasswordException::new);
+            linkRepository.delete(linkToDelete);
+        }
+    }
+
     private String generateId() {
         StringBuilder randomId = new StringBuilder();
         Random random = new Random();

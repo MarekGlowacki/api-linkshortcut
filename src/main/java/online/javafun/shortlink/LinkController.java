@@ -59,4 +59,17 @@ public class LinkController {
                     .build();
         }
     }
+
+    @DeleteMapping("/api/links/{id}")
+    ResponseEntity<?> delete(@PathVariable String id,
+                             @RequestHeader("passwd") String password) {
+        try {
+            linkService.deleteLink(id, password);
+            return ResponseEntity.noContent().build();
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .header("reason", e.getMessage())
+                    .build();
+        }
+    }
 }
